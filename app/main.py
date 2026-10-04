@@ -47,9 +47,7 @@ def health(request: Request) -> HealthResponse:
 )
 def predict(payload: PredictionRequest, request: Request) -> PredictionResponse:
     """Classify the input text as negative, neutral, or positive."""
-    model: SentimentModel | None = getattr(
-        request.app.state, "sentiment_model", None
-    )
+    model: SentimentModel | None = getattr(request.app.state, "sentiment_model", None)
     if model is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
