@@ -166,7 +166,6 @@ Detailed architecture notes are available in
 │
 ├── docs/
 │   ├── ARCHITECTURE.md
-│   └── PRODUCTION_NOTES.md
 │
 ├── monitoring/
 │   ├── grafana/
@@ -630,56 +629,6 @@ separation, networking, configuration, and repeatable local startup.
 Airflow has a large dependency surface and a different responsibility from the
 inference service. Running it in its own container avoids dependency conflicts
 and preserves separation of concerns.
-
----
-
-## Current limitations
-
-The solution is intentionally small and educational.
-
-Current limitations include:
-
-- the pretrained model is used without domain-specific fine-tuning;
-- the model is primarily English-oriented;
-- model confidence is not equivalent to calibrated correctness;
-- the Docker image is relatively large because it includes PyTorch and
-  Transformer dependencies;
-- no autoscaling or production load balancing is implemented;
-- the API is not deployed to a continuously hosted public endpoint;
-- drift-oriented metrics are limited compared with a dedicated drift platform;
-- concept drift is not automatically measurable without ground truth;
-- Airflow training and registration tasks are demonstrative rather than full
-  training jobs;
-- credentials in Docker Compose are local demo credentials;
-- no centralized authentication, authorization, or secret-management platform
-  is configured.
-
----
-
-## Production evolution
-
-A production installation could introduce:
-
-- immutable model artifacts and a model registry;
-- MLflow or an equivalent experiment/model lifecycle service;
-- object storage or a data lake for production datasets;
-- real social-media/API ingestion;
-- schema and data-quality validation;
-- embedding-based drift detection;
-- human-labeling workflows for delayed ground truth;
-- calibrated model-quality thresholds;
-- scalable inference workers;
-- Kubernetes or a managed container runtime where justified;
-- TLS, authentication, authorization, and centralized secret management;
-- centralized logs and distributed tracing;
-- SLO-based alerting;
-- deployment approval gates;
-- canary, shadow, or blue/green model rollout;
-- automated rollback;
-- vulnerability scanning and dependency security controls.
-
-More detail is available in
-[`docs/PRODUCTION_NOTES.md`](docs/PRODUCTION_NOTES.md).
 
 ---
 
