@@ -203,3 +203,69 @@ Example prediction response:
 - The current CD publishes a container artifact, but does not yet deploy a
   continuously hosted service.
 - Drift monitoring and retraining orchestration belong to later phases.
+
+# Phase 5 - Monitoring
+
+This patch adds the monitoring layer required by the project brief.
+
+## Stack
+
+- FastAPI exposes `/metrics` in Prometheus format.
+- Prometheus scrapes the API every 5 seconds.
+- Grafana is automatically provisioned with a Prometheus data source and dashboard.
+- Prometheus evaluates a `HighHttpErrorRate` alert rule.
+
+## Metrics
+
+- `sentiment_requests_total`: HTTP volume and status codes.
+- `sentiment_request_latency_seconds`: request latency histogram.
+- `sentiment_predictions_total`: predicted sentiment class distribution.
+- `sentiment_input_length_chars`: input text length histogram.
+
+## Start the stack
+
+```bash
+docker compose up --build
+```
+
+Services:
+
+- API: http://localhost:8000
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000
+
+Grafana demo credentials:
+
+- username: `admin`
+- password: `admin`
+
+The dashboard is provisioned automatically in the `MLOps Sentiment` folder.
+
+## Alert
+
+`HighHttpErrorRate` becomes firing when more than 5% of HTTP requests return a
+5xx status for at least five minutes. The threshold is deliberately simple for
+this educational project. In production it should be derived from SLOs,
+expected traffic, and service criticality.
+
+The rule can be inspected in Prometheus under **Alerts**.
+
+## Drift signals
+
+The monitoring stack provides operational and input-distribution signals, but
+these must not be confused with definitive drift detection.
+
+Potential **data drift** signals include changes in:
+
+- average and distribution of input length;
+- predicted sentiment class distribution;
+- language, tokens, hashtags, URLs, mentions, and embeddings (future work).
+
+A sharp shift is a signal to investigate, not proof of model degradation. For
+example, a real reputational crisis could legitimately increase the share of
+negative predictions.
+
+**Concept drift** requires labelled production observations or another source
+of ground truth. A production workflow would periodically sample incoming
+texts, obtain human labels, compare predictions with those labels, and monitor
+metrics such as macro-F1, per-class recall, and calibration over time.

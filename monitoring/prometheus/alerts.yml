@@ -1,0 +1,19 @@
+groups:
+  - name: sentiment-api-alerts
+    rules:
+      - alert: HighHttpErrorRate
+        expr: |
+          (
+            sum(rate(sentiment_requests_total{status_code=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(sentiment_requests_total[5m])), 0.000001)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Sentiment API HTTP error rate above 5%"
+          description: >-
+            More than 5% of HTTP requests have returned 5xx responses for
+            at least five minutes. The threshold is demonstrative and should
+            be aligned with production SLOs and traffic volume.

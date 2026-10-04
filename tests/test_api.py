@@ -55,6 +55,17 @@ def test_predict_returns_expected_contract(client: TestClient) -> None:
     assert body["model_version"] == MODEL_VERSION
 
 
+def test_metrics_endpoint_exposes_service_metrics(client: TestClient) -> None:
+    client.post("/predict", json={"text": "I love this product"})
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert "sentiment_requests_total" in response.text
+    assert "sentiment_request_latency_seconds" in response.text
+    assert "sentiment_predictions_total" in response.text
+    assert "sentiment_input_length_chars" in response.text
+
+
 def test_predict_rejects_empty_text(client: TestClient) -> None:
     response = client.post("/predict", json={"text": ""})
 
